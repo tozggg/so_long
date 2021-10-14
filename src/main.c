@@ -6,7 +6,7 @@
 /*   By: taejkim <taejkim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 06:06:08 by taejkim           #+#    #+#             */
-/*   Updated: 2021/10/14 16:21:51 by taejkim          ###   ########.fr       */
+/*   Updated: 2021/10/15 05:58:37 by taejkim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,23 @@
 
 #include "../mlx/mlx.h"
 
-#define BUFFER_SIZE 32
+#define BUFFER_SIZE 1
 #define TILE_SIZE 64
+
+#define IMG_FISH 0
+#define IMG_PG1 1
+#define IMG_PG2 2
+#define IMG_PG3 3
+#define IMG_PG4 4
+#define IMG_PG5 5
+#define IMG_PG6 6
+#define IMG_TILE0 7
+#define IMG_TILE1 8
+#define IMG_END 9
+#define IMG_EXIT 10
+
+
+
 
 typedef struct	s_map
 {
@@ -35,13 +50,19 @@ typedef struct	s_map
 
 typedef struct	s_game
 {
+	void			*mlx;
+	void			*win;
+	void			*img[11];
 	struct s_obj	*wall;
 	struct s_obj	*exit;
 	struct s_obj	*fish;
 	int				fish_count;
+	int				x;
+	int				y;
 	int				player_x;
 	int				player_y;
 	int				mvmt;
+	int				status;
 }				t_game;
 
 typedef struct	s_obj
@@ -119,13 +140,18 @@ void	init_map(t_map *map)
 
 void	init_game(t_game *game)
 {
+	game->mlx = NULL;
+	game->win = NULL;
 	game->wall = NULL;
 	game->exit = NULL;
 	game->fish = NULL;
 	game->fish_count = 0;
+	game->x = 0;
+	game->y = 0;
 	game->player_x = 0;
 	game->player_y = 0;
 	game->mvmt = 0;
+	game->status = 0;
 }
 // ---------------------------------------------------------
 
@@ -164,7 +190,7 @@ int		check_first_line(char *str, t_map *map, int *i)
 	while (str[*i] && str[*i] != '\n')
 	{
 		if (str[*i] != '1')
-			error_out("invalid map\n");
+			error_out("invalid map: enclosing wall\n");
 		++map->prev_len;
 		++(*i);
 	}
@@ -181,7 +207,7 @@ int		check_last_line(char *str, t_map *map, int *i)
 	while (j <= map->prev_len)
 	{
 		if (str[*i - j] != '1')
-			error_out("invalid map\n");
+			error_out("invalid map: enclosing wall\n");
 		++j;
 	}
 	return (0);
@@ -190,12 +216,12 @@ int		check_last_line(char *str, t_map *map, int *i)
 int		check_line(char *str, t_map *map, int *i)
 {
 	if (str[*i] != '1')
-		error_out("invalid map\n");
+		error_out("invalid map: enclosing wall\n");
 	while (str[*i] && str[*i] != '\n')
 	{
 		if (!(str[*i] == '0' || str[*i] == '1' || str[*i] == 'P' || \
 				str[*i] == 'E' || str[*i] == 'C'))
-			error_out("invalid map\n");
+		error_out("invalid map: abnormal object\n");
 		if (str[*i] == 'P')
 			++map->start;
 		if (str[*i] == 'E')
@@ -206,23 +232,23 @@ int		check_line(char *str, t_map *map, int *i)
 		++(*i);
 	}
 	if (map->curr_len != map->prev_len)
-		error_out("invalid map\n");
+		error_out("invalid map: not rectangle\n");
 	map->curr_len = 0;
 	if (!str[*i] || !str[*i + 1])
 		return (check_last_line(str, map, i));
 	if (str[*i - 1] != '1')
-		error_out("invalid map\n");
+		error_out("invalid map: enclosing wall\n");
 	return (1);
 }
 
 void	check_map_element(t_map map)
 {
 	if (map.start != 1)
-		error_out("invalid map\n");
+		error_out("invalid map: insufficient object\n");
 	if (map.end != 1)
-		error_out("invalid map\n");
+		error_out("invalid map: insufficient object\n");
 	if (!(map.fish >= 1))
-		error_out("invalid map\n");
+		error_out("invalid map: insufficient object\n");
 }
 
 void	check_map(char *str)
@@ -288,10 +314,10 @@ void	make_game(t_game *game, char *str)
 	int		x;
 	int		y;
 	
-	y = 1;
+	y = 0;
 	while (*str)
 	{
-		x = 1;
+		x = 0;
 		while (*str && *str != '\n')
 		{
 			make_game_child(game, str, x, y);
@@ -302,8 +328,77 @@ void	make_game(t_game *game, char *str)
 			++str;
 		++y;
 	}
+	game->x = x;
+	game->y = y;
 }
 
+// Display ---------------------------------------------------------------------------------------------
+void	get_xpm_img(t_game *game)
+{
+	int img64;
+
+	img64 = 64;
+	game->img[IMG_FISH] = mlx_xpm_file_to_image(game->mlx, "../image/fish.xpm", &img64, &img64);
+	game->img[IMG_PG1] = mlx_xpm_file_to_image(game->mlx, "../image/pg1.xpm", &img64, &img64);
+	game->img[IMG_PG2] = mlx_xpm_file_to_image(game->mlx, "../image/pg2.xpm", &img64, &img64);
+	game->img[IMG_PG3] = mlx_xpm_file_to_image(game->mlx, "../image/pg3.xpm", &img64, &img64);
+	game->img[IMG_PG4] = mlx_xpm_file_to_image(game->mlx, "../image/pg4.xpm", &img64, &img64);
+	game->img[IMG_PG5] = mlx_xpm_file_to_image(game->mlx, "../image/pg5.xpm", &img64, &img64);
+	game->img[IMG_PG6] = mlx_xpm_file_to_image(game->mlx, "../image/pg6.xpm", &img64, &img64);
+	game->img[IMG_TILE0] = mlx_xpm_file_to_image(game->mlx, "../image/tile0.xpm", &img64, &img64);
+	game->img[IMG_TILE1] = mlx_xpm_file_to_image(game->mlx, "../image/tile1.xpm", &img64, &img64);
+	game->img[IMG_END] = mlx_xpm_file_to_image(game->mlx, "../image/end.xpm", &img64, &img64);
+	game->img[IMG_EXIT] = mlx_xpm_file_to_image(game->mlx, "../image/exit.xpm", &img64, &img64);
+}
+
+void	display_background(t_game *game)
+{
+	int i;
+	int j;
+
+	j = 0;
+	while (j < game->y)
+	{
+		i = 0;
+		while (i < game->x)
+		{
+			mlx_put_image_to_window(game->mlx, game->win, game->img[IMG_TILE0], TILE_SIZE * i, TILE_SIZE * j);
+			++i;
+		}
+		++j;
+	}
+}
+
+void	display_obj(t_game *game)
+{
+	t_obj *node;
+
+	node = game->wall;
+	while (node)
+	{
+		mlx_put_image_to_window(game->mlx, game->win, game->img[IMG_TILE1], TILE_SIZE * node->x, TILE_SIZE * node->y);
+		node = node->next;
+	}
+	node = game->fish;
+	while (node)
+	{
+		mlx_put_image_to_window(game->mlx, game->win, game->img[IMG_FISH], TILE_SIZE * node->x, TILE_SIZE * node->y);
+		node = node->next;
+	}
+	node = game->exit;
+	mlx_put_image_to_window(game->mlx, game->win, game->img[IMG_END], TILE_SIZE * node->x, TILE_SIZE * node->y);
+	mlx_put_image_to_window(game->mlx, game->win, game->img[IMG_PG1], TILE_SIZE * game->player_x, TILE_SIZE * game->player_y);			
+}
+
+void	display_game(t_game *game)
+{
+	game->mlx = mlx_init();
+	game->win = mlx_new_window(game->mlx, TILE_SIZE * game->x, TILE_SIZE * game->y, "so_long");
+	get_xpm_img(game);
+	display_background(game);
+	display_obj(game);
+}
+// --------------------------------------------------------------------------------------------------------
 
 int		main(int ac, char *av[])
 {
@@ -317,7 +412,9 @@ int		main(int ac, char *av[])
 	init_game(&game);
 	make_game(&game, map);
 	free(map);
-	
-	
+	display_game(&game);
+
+
+	mlx_loop(game.mlx);
 	return (0);
 }
