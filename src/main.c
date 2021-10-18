@@ -6,7 +6,7 @@
 /*   By: taejkim <taejkim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 06:06:08 by taejkim           #+#    #+#             */
-/*   Updated: 2021/10/15 05:58:37 by taejkim          ###   ########.fr       */
+/*   Updated: 2021/10/19 02:01:14 by taejkim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,39 +31,43 @@
 #define IMG_PG4 4
 #define IMG_PG5 5
 #define IMG_PG6 6
-#define IMG_TILE0 7
-#define IMG_TILE1 8
-#define IMG_END 9
-#define IMG_EXIT 10
+#define IMG_PG7 7
+#define IMG_PG8 8
+#define IMG_TILE0 9
+#define IMG_TILE1 10
+#define IMG_END 11
+#define IMG_EXIT 12
 
+#define X_EVENT_KEY_PRESS 2
+#define X_EVENT_KEY_EXIT 17
 
+#define KEY_ESC 53
+#define KEY_W 13
+#define KEY_A 0
+#define KEY_S 1
+#define KEY_D 2
 
+#define TRUE 1
+#define FALSE 0
+
+#define UP 1
+#define DOWN 2
+#define LEFT 3
+#define RIGHT 4
+
+#define MOVE_TILE 1
+#define MOVE_FISH 2
+#define MOVE_EXIT 3
 
 typedef struct	s_map
 {
-	int				prev_len;
-	int				curr_len;
-	int				start;
-	int				end;
-	int				fish;
+	int		prev_len;
+	int		curr_len;
+	int		start;
+	int		end;
+	int		fish;
 }				t_map;
 
-typedef struct	s_game
-{
-	void			*mlx;
-	void			*win;
-	void			*img[11];
-	struct s_obj	*wall;
-	struct s_obj	*exit;
-	struct s_obj	*fish;
-	int				fish_count;
-	int				x;
-	int				y;
-	int				player_x;
-	int				player_y;
-	int				mvmt;
-	int				status;
-}				t_game;
 
 typedef struct	s_obj
 {
@@ -71,6 +75,36 @@ typedef struct	s_obj
 	int				y;
 	struct s_obj	*next;	
 }				t_obj;
+
+typedef struct	s_state
+{
+	int		playing;
+	int		moving;
+	int		move_place;
+	int		move_dir;
+	int		move_x;
+	int		move_y;
+	int		move_count;
+	int		motion;
+	int		frame;
+	int		mvf;
+}				t_state;
+
+typedef struct	s_game
+{
+	void	*mlx;
+	void	*win;
+	void	*img[13];
+	t_obj	*wall;
+	t_obj	*exit;
+	t_obj	*fish;
+	int		fish_count;
+	int		col;
+	int		row;
+	int		x;
+	int		y;
+	t_state	state;
+}				t_game;
 
 //Libft ----------------------------------------------------
 
@@ -138,6 +172,17 @@ void	init_map(t_map *map)
 	map->fish = 0;
 }
 
+void	init_state(t_game *game)
+{
+	game->state.playing = TRUE;
+	game->state.moving = FALSE;
+	game->state.move_place = 0;
+	game->state.move_dir = 0;
+	game->state.move_x = 0;
+	game->state.move_y = 0;
+	game->state.mvf = 0;
+}
+
 void	init_game(t_game *game)
 {
 	game->mlx = NULL;
@@ -146,12 +191,14 @@ void	init_game(t_game *game)
 	game->exit = NULL;
 	game->fish = NULL;
 	game->fish_count = 0;
+	game->col = 0;
+	game->row = 0;
 	game->x = 0;
 	game->y = 0;
-	game->player_x = 0;
-	game->player_y = 0;
-	game->mvmt = 0;
-	game->status = 0;
+	init_state(game);
+	game->state.motion = 1;
+	game->state.frame = 0;
+	game->state.move_count = 0;
 }
 // ---------------------------------------------------------
 
@@ -291,6 +338,26 @@ void	add_obj(t_obj **obj, int x, int y)
 	}
 }
 
+void	get_xpm_img(t_game *game)
+{
+	int img64;
+
+	img64 = 64;
+	game->img[IMG_FISH] = mlx_xpm_file_to_image(game->mlx, "../image/fish.xpm", &img64, &img64);
+	game->img[IMG_PG1] = mlx_xpm_file_to_image(game->mlx, "../image/pg1.xpm", &img64, &img64);
+	game->img[IMG_PG2] = game->img[IMG_PG1];
+	game->img[IMG_PG3] = game->img[IMG_PG1];
+	game->img[IMG_PG4] = mlx_xpm_file_to_image(game->mlx, "../image/pg2.xpm", &img64, &img64);
+	game->img[IMG_PG5] = mlx_xpm_file_to_image(game->mlx, "../image/pg3.xpm", &img64, &img64);
+	game->img[IMG_PG6] = mlx_xpm_file_to_image(game->mlx, "../image/pg4.xpm", &img64, &img64);
+	game->img[IMG_PG7] = mlx_xpm_file_to_image(game->mlx, "../image/pg5.xpm", &img64, &img64);
+	game->img[IMG_PG8] = mlx_xpm_file_to_image(game->mlx, "../image/pg6.xpm", &img64, &img64);
+	game->img[IMG_TILE0] = mlx_xpm_file_to_image(game->mlx, "../image/tile0.xpm", &img64, &img64);
+	game->img[IMG_TILE1] = mlx_xpm_file_to_image(game->mlx, "../image/tile1.xpm", &img64, &img64);
+	game->img[IMG_END] = mlx_xpm_file_to_image(game->mlx, "../image/end.xpm", &img64, &img64);
+	game->img[IMG_EXIT] = mlx_xpm_file_to_image(game->mlx, "../image/exit.xpm", &img64, &img64);
+}
+
 void	make_game_child(t_game *game, char *str, int x, int y)
 {
 	if (*str == '1')
@@ -304,8 +371,8 @@ void	make_game_child(t_game *game, char *str, int x, int y)
 	}
 	else if (*str == 'P')
 	{
-		game->player_x = x;
-		game->player_y = y;
+		game->x = x;
+		game->y = y;
 	}
 }
 
@@ -328,27 +395,19 @@ void	make_game(t_game *game, char *str)
 			++str;
 		++y;
 	}
-	game->x = x;
-	game->y = y;
+	game->col = x;
+	game->row = y;
+	game->mlx = mlx_init();
+	get_xpm_img(game);
+	game->win = mlx_new_window(game->mlx, TILE_SIZE * game->col, TILE_SIZE * game->row, "so_long");
 }
 
 // Display ---------------------------------------------------------------------------------------------
-void	get_xpm_img(t_game *game)
-{
-	int img64;
 
-	img64 = 64;
-	game->img[IMG_FISH] = mlx_xpm_file_to_image(game->mlx, "../image/fish.xpm", &img64, &img64);
-	game->img[IMG_PG1] = mlx_xpm_file_to_image(game->mlx, "../image/pg1.xpm", &img64, &img64);
-	game->img[IMG_PG2] = mlx_xpm_file_to_image(game->mlx, "../image/pg2.xpm", &img64, &img64);
-	game->img[IMG_PG3] = mlx_xpm_file_to_image(game->mlx, "../image/pg3.xpm", &img64, &img64);
-	game->img[IMG_PG4] = mlx_xpm_file_to_image(game->mlx, "../image/pg4.xpm", &img64, &img64);
-	game->img[IMG_PG5] = mlx_xpm_file_to_image(game->mlx, "../image/pg5.xpm", &img64, &img64);
-	game->img[IMG_PG6] = mlx_xpm_file_to_image(game->mlx, "../image/pg6.xpm", &img64, &img64);
-	game->img[IMG_TILE0] = mlx_xpm_file_to_image(game->mlx, "../image/tile0.xpm", &img64, &img64);
-	game->img[IMG_TILE1] = mlx_xpm_file_to_image(game->mlx, "../image/tile1.xpm", &img64, &img64);
-	game->img[IMG_END] = mlx_xpm_file_to_image(game->mlx, "../image/end.xpm", &img64, &img64);
-	game->img[IMG_EXIT] = mlx_xpm_file_to_image(game->mlx, "../image/exit.xpm", &img64, &img64);
+void	display_player(t_game *game)
+{
+	mlx_put_image_to_window(game->mlx, game->win, game->img[IMG_TILE0], TILE_SIZE * game->x, TILE_SIZE * game->y);
+	mlx_put_image_to_window(game->mlx, game->win, game->img[game->state.motion], TILE_SIZE * game->x, TILE_SIZE * game->y);
 }
 
 void	display_background(t_game *game)
@@ -357,10 +416,10 @@ void	display_background(t_game *game)
 	int j;
 
 	j = 0;
-	while (j < game->y)
+	while (j < game->row)
 	{
 		i = 0;
-		while (i < game->x)
+		while (i < game->col)
 		{
 			mlx_put_image_to_window(game->mlx, game->win, game->img[IMG_TILE0], TILE_SIZE * i, TILE_SIZE * j);
 			++i;
@@ -387,18 +446,256 @@ void	display_obj(t_game *game)
 	}
 	node = game->exit;
 	mlx_put_image_to_window(game->mlx, game->win, game->img[IMG_END], TILE_SIZE * node->x, TILE_SIZE * node->y);
-	mlx_put_image_to_window(game->mlx, game->win, game->img[IMG_PG1], TILE_SIZE * game->player_x, TILE_SIZE * game->player_y);			
 }
 
 void	display_game(t_game *game)
 {
-	game->mlx = mlx_init();
-	game->win = mlx_new_window(game->mlx, TILE_SIZE * game->x, TILE_SIZE * game->y, "so_long");
-	get_xpm_img(game);
 	display_background(game);
 	display_obj(game);
 }
 // --------------------------------------------------------------------------------------------------------
+
+
+// Move -----------------------------------------------------------------
+
+int		is_obj(t_obj *obj, int x, int y)
+{
+	t_obj *node;
+
+	node = obj;
+	while (node)
+	{
+		if (x == node->x && y == node->y)
+			return (1);
+		node = node->next;
+	}
+	return (0);
+}
+
+void	action(t_game *game, int x, int y, int dir)
+{
+	if (game->state.playing == FALSE || game->state.moving == TRUE)
+		return ;
+	if (is_obj(game->wall, x, y) || (is_obj(game->exit, x, y) && game->fish_count))
+		return ;
+	else
+	{
+		if (is_obj(game->exit, x, y) && !game->fish_count)
+			game->state.move_place = MOVE_EXIT;
+		else if (is_obj(game->fish, x, y))
+			game->state.move_place = MOVE_FISH;
+		else
+			game->state.move_place = MOVE_TILE;
+		game->state.moving = TRUE;
+		game->state.move_dir = dir;
+		game->state.move_x = x;
+		game->state.move_y = y;
+		//출력
+		++(game->state.move_count);
+	}
+}
+
+
+
+
+
+
+
+// --------------------------------------------------------------------
+
+
+int		close_game(t_game *game)
+{
+	mlx_destroy_window(game->mlx, game->win);
+	exit(0);
+}
+
+int		key_press(int keycode, t_game *game)
+{
+	if (keycode == KEY_ESC)
+		close_game(game);
+	else if (keycode == KEY_W)
+		action(game, game->x, game->y - 1, UP);
+	else if (keycode == KEY_A)
+		action(game, game->x - 1, game->y, LEFT);
+	else if (keycode == KEY_S)
+		action(game, game->x, game->y + 1, DOWN);
+	else if (keycode == KEY_D)
+		action(game, game->x + 1, game->y, RIGHT);
+	return (0);
+}
+
+
+// Loop -------------------------------------------------------------------------------
+
+void	remove_fish(t_game *game, int x, int y)
+{
+	t_obj *node;
+	t_obj *next;
+
+	node = game->fish;
+	if (x == node->x && y == node->y)
+		game->fish = node->next;
+	else
+	{
+		next = node->next;
+		while (next)
+		{
+			if (x == next->x && y == next->y)
+			{
+				node->next = next->next;
+				node = next;
+				break ;
+			}
+			node = node->next;
+			next = node->next;
+		}
+	}
+	free(node);
+	if ((--(game->fish_count)) == 0)
+		mlx_put_image_to_window(game->mlx, game->win, game->img[IMG_EXIT], \
+									TILE_SIZE * game->exit->x, TILE_SIZE * game->exit->y);
+}
+
+void	standing(t_game *game)
+{
+	if (game->state.frame % 1000 == 0)
+	{
+		if ((++(game->state.motion)) == 9)
+			game->state.motion = 1;
+		display_player(game);
+	}
+	if ((++(game->state.frame)) == 8000)
+		game->state.frame = 0;
+}
+
+void	display_up(t_game *game, int imgno)
+{
+	mlx_put_image_to_window(game->mlx, game->win, game->img[IMG_TILE0], TILE_SIZE * game->x, TILE_SIZE * game->y);
+	mlx_put_image_to_window(game->mlx, game->win, game->img[imgno], TILE_SIZE * game->state.move_x, TILE_SIZE * game->state.move_y);
+	mlx_put_image_to_window(game->mlx, game->win, game->img[game->state.motion], TILE_SIZE * game->x, (TILE_SIZE * game->y) - (game->state.mvf * 2));
+}
+
+void	display_down(t_game *game, int imgno)
+{
+	mlx_put_image_to_window(game->mlx, game->win, game->img[IMG_TILE0], TILE_SIZE * game->x, TILE_SIZE * game->y);
+	mlx_put_image_to_window(game->mlx, game->win, game->img[imgno], TILE_SIZE * game->state.move_x, TILE_SIZE * game->state.move_y);
+	mlx_put_image_to_window(game->mlx, game->win, game->img[game->state.motion], TILE_SIZE * game->x, (TILE_SIZE * game->y) + (game->state.mvf * 2));
+}
+
+void	display_left(t_game *game, int imgno)
+{
+	mlx_put_image_to_window(game->mlx, game->win, game->img[IMG_TILE0], TILE_SIZE * game->x, TILE_SIZE * game->y);
+	mlx_put_image_to_window(game->mlx, game->win, game->img[imgno], TILE_SIZE * game->state.move_x, TILE_SIZE * game->state.move_y);
+	mlx_put_image_to_window(game->mlx, game->win, game->img[game->state.motion], (TILE_SIZE * game->x) - (game->state.mvf * 2), TILE_SIZE * game->y);
+}
+
+void	display_right(t_game *game, int imgno)
+{
+	mlx_put_image_to_window(game->mlx, game->win, game->img[IMG_TILE0], TILE_SIZE * game->x, TILE_SIZE * game->y);
+	mlx_put_image_to_window(game->mlx, game->win, game->img[imgno], TILE_SIZE * game->state.move_x, TILE_SIZE * game->state.move_y);
+	mlx_put_image_to_window(game->mlx, game->win, game->img[game->state.motion], (TILE_SIZE * game->x) + (game->state.mvf * 2), TILE_SIZE * game->y);
+}
+
+#include <time.h>
+#include <sys/time.h>
+struct timeval  tv;
+double begin, end;
+
+void	move_tile(t_game *game)
+{
+	if (game->state.mvf == 1)
+	{
+		gettimeofday(&tv, NULL);
+		begin = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000 ;
+	}
+	
+	if (game->state.move_dir == UP)
+		display_up(game, IMG_TILE0);
+	else if (game->state.move_dir == DOWN)
+		display_down(game, IMG_TILE0);
+	else if (game->state.move_dir == LEFT)
+		display_left(game, IMG_TILE0);
+	else if (game->state.move_dir == RIGHT)
+		display_right(game, IMG_TILE0);
+	if (game->state.mvf == 32)
+	{
+		game->x = game->state.move_x;
+		game->y = game->state.move_y;
+		
+		gettimeofday(&tv, NULL);
+		end = (tv.tv_sec) * 1000 + (tv.tv_usec) / 1000 ;
+		printf("Execution time %f\n", (end - begin) / 1000);
+
+		init_state(game);
+		return ;
+	}
+	++(game->state.mvf);
+}
+
+void	move_fish(t_game *game)
+{
+	if (game->state.move_dir == UP)
+		display_up(game, IMG_TILE0);
+	else if (game->state.move_dir == DOWN)
+		display_down(game, IMG_TILE0);
+	else if (game->state.move_dir == LEFT)
+		display_left(game, IMG_TILE0);
+	else if (game->state.move_dir == RIGHT)
+		display_right(game, IMG_TILE0);
+	if (game->state.mvf == 32)
+	{
+		game->x = game->state.move_x;
+		game->y = game->state.move_y;
+		init_state(game);
+		remove_fish(game, game->x, game->y);
+		return ;
+	}
+	++(game->state.mvf);
+}
+
+void	display_ending(t_game *game)
+{
+	close_game(game);
+}
+
+void	move_exit(t_game *game)
+{
+	if (game->state.move_dir == UP)
+		display_up(game, IMG_EXIT);
+	else if (game->state.move_dir == DOWN)
+		display_down(game, IMG_EXIT);
+	else if (game->state.move_dir == LEFT)
+		display_left(game, IMG_EXIT);
+	else if (game->state.move_dir == RIGHT)
+		display_right(game, IMG_EXIT);
+	if (game->state.mvf == 32)
+	{
+		game->state.playing = FALSE;
+		display_ending(game);
+		return ;
+	}
+	++(game->state.mvf);
+}
+
+int		loop(t_game *game)
+{
+	if (game->state.playing == FALSE)
+		return (0);
+	if (game->state.moving == FALSE)
+		standing(game);
+	else
+	{
+		if (game->state.move_place == MOVE_TILE)
+			move_tile(game);
+		else if (game->state.move_place == MOVE_FISH)
+			move_fish(game);
+		else if (game->state.move_place == MOVE_EXIT)
+			move_exit(game);
+	}
+	return (0);
+}
+// -------------------------------------------------------------------------------------
 
 int		main(int ac, char *av[])
 {
@@ -413,8 +710,9 @@ int		main(int ac, char *av[])
 	make_game(&game, map);
 	free(map);
 	display_game(&game);
-
-
+	mlx_hook(game.win, X_EVENT_KEY_EXIT, 0, &close_game, &game);
+	mlx_hook(game.win, X_EVENT_KEY_PRESS, 0, &key_press, &game);
+	mlx_loop_hook(game.mlx, &loop, &game);
 	mlx_loop(game.mlx);
 	return (0);
 }
