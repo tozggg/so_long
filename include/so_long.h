@@ -6,7 +6,7 @@
 /*   By: taejkim <taejkim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 13:06:25 by taejkim           #+#    #+#             */
-/*   Updated: 2021/10/21 14:00:55 by taejkim          ###   ########.fr       */
+/*   Updated: 2021/10/21 15:52:14 by taejkim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <fcntl.h>
 # include <sys/types.h>
 
+# include "../libft/libft.h"
 # include "../mlx/mlx.h"
 
 # define BUFFER_SIZE 1

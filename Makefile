@@ -6,7 +6,7 @@
 #    By: taejkim <taejkim@student.42seoul.kr>       +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/10/21 14:11:44 by taejkim           #+#    #+#              #
-#    Updated: 2021/10/21 14:58:13 by taejkim          ###   ########.fr        #
+#    Updated: 2021/10/21 15:55:13 by taejkim          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,13 +14,12 @@ NAME = so_long
 
 INCDIR = ./include/
 SRCDIR = ./src/
-OBJDIR = ./obj/
 LIBDIR = ./libft/
 MLXDIR = ./mlx/
 
 CC = gcc
-CFLAGS = -Wall -Wextra - Werror
-LIBFLAGS = -L ./libft -lft -L ./mlx -lmlx -framework OpenGL -framework Appkit
+CFLAGS = -Wall -Wextra -Werror
+LIBFLAGS = -L $(LIBDIR) -lft -L $(MLXDIR) -lmlx -framework OpenGL -framework Appkit
 
 SRC = main.c move.c action.c \
 	display_move.c display_str.c display_game.c \
@@ -35,18 +34,18 @@ OBJS = $(SRCS:.c=.o)
 $(NAME) : $(OBJS)
 	make -C $(LIBDIR)
 	make -C $(MLXDIR)
-	$(CC) -o $(NAME) $(OBJS) $(LIBFLAGS)
+	$(CC) -o $(NAME) $(OBJS) -I $(INCDIR) $(LIBFLAGS) 
 
 all :$(NAME)
 
 clean :
 	make -C $(LIBDIR) clean
 	make -C $(MLXDIR) clean
-	$(RM) $(OBJS)
+	rm -f $(OBJS)
 
 fclean : clean
 	make -C $(LIBDIR) fclean
-	$(RM) $(NAME)
+	rm -f $(NAME)
 
 re : clean all
 
