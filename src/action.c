@@ -6,7 +6,7 @@
 /*   By: taejkim <taejkim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 13:44:06 by taejkim           #+#    #+#             */
-/*   Updated: 2021/10/21 13:44:32 by taejkim          ###   ########.fr       */
+/*   Updated: 2021/10/21 16:27:01 by taejkim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static int	is_obj(t_obj *obj, int x, int y)
 {
-	t_obj *node;
+	t_obj	*node;
 
 	node = obj;
 	while (node)
@@ -30,7 +30,8 @@ void	action(t_game *game, int x, int y, int dir)
 {
 	if (game->state.playing == FALSE || game->state.moving == TRUE)
 		return ;
-	if (is_obj(game->wall, x, y) || (is_obj(game->exit, x, y) && !(game->fish_count == game->fish_max)))
+	if (is_obj(game->wall, x, y) || \
+		(is_obj(game->exit, x, y) && !(game->fish_count == game->fish_max)))
 		return ;
 	else
 	{

@@ -6,7 +6,7 @@
 /*   By: taejkim <taejkim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 14:04:38 by taejkim           #+#    #+#             */
-/*   Updated: 2021/10/21 14:10:34 by taejkim          ###   ########.fr       */
+/*   Updated: 2021/10/21 15:59:40 by taejkim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ static void	assign_ptr(char *ptr, int n, int size)
 	}
 }
 
-char		*ft_itoa(int n)
+char	*ft_itoa(int n)
 {
 	char	*ptr;
 	int		size;

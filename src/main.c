@@ -6,19 +6,19 @@
 /*   By: taejkim <taejkim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 06:06:08 by taejkim           #+#    #+#             */
-/*   Updated: 2021/10/21 15:50:37 by taejkim          ###   ########.fr       */
+/*   Updated: 2021/10/21 16:26:23 by taejkim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/so_long.h"
 
-int		close_game(t_game *game)
+int	close_game(t_game *game)
 {
 	mlx_destroy_window(game->mlx, game->win);
 	exit(0);
 }
 
-int		key_press(int keycode, t_game *game)
+int	key_press(int keycode, t_game *game)
 {
 	if (keycode == KEY_ESC)
 		close_game(game);
@@ -33,7 +33,7 @@ int		key_press(int keycode, t_game *game)
 	return (0);
 }
 
-int		loop(t_game *game)
+int	loop(t_game *game)
 {
 	if (game->state.playing == FALSE)
 		return (0);
@@ -51,7 +51,7 @@ int		loop(t_game *game)
 	return (0);
 }
 
-int		main(int ac, char *av[])
+int	main(int ac, char *av[])
 {
 	t_game	game;
 	char	*map;

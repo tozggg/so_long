@@ -6,7 +6,7 @@
 /*   By: taejkim <taejkim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 13:06:25 by taejkim           #+#    #+#             */
-/*   Updated: 2021/10/21 15:52:14 by taejkim          ###   ########.fr       */
+/*   Updated: 2021/10/21 16:36:27 by taejkim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,55 +61,54 @@
 # define MOVE_FISH 2
 # define MOVE_EXIT 3
 
-typedef struct	s_map
+typedef struct s_map
 {
-	int		prev_len;
-	int		curr_len;
-	int		start;
-	int		end;
-	int		fish;
+	int				prev_len;
+	int				curr_len;
+	int				start;
+	int				end;
+	int				fish;
 }				t_map;
 
-typedef struct	s_obj
+typedef struct s_obj
 {
 	int				x;
 	int				y;
 	struct s_obj	*next;	
 }				t_obj;
 
-typedef struct	s_state
+typedef struct s_state
 {
-	int		playing;
-	int		moving;
-	int		move_place;
-	int		move_dir;
-	int		move_x;
-	int		move_y;
-	int		move_count;
-	int		motion;
-	int		frame;
-	int		mvf;
+	int				playing;
+	int				moving;
+	int				move_place;
+	int				move_dir;
+	int				move_x;
+	int				move_y;
+	int				move_count;
+	int				motion;
+	int				frame;
+	int				mvf;
 }				t_state;
 
-typedef struct	s_game
+typedef struct s_game
 {
-	void	*mlx;
-	void	*win;
-	void	*img[15];
-	t_obj	*wall;
-	t_obj	*exit;
-	t_obj	*fish;
-	int		fish_max;
-	int		fish_count;
-	int		col;
-	int		row;
-	int		x;
-	int		y;
-	t_state	state;
+	void			*mlx;
+	void			*win;
+	void			*img[15];
+	t_obj			*wall;
+	t_obj			*exit;
+	t_obj			*fish;
+	int				fish_max;
+	int				fish_count;
+	int				col;
+	int				row;
+	int				x;
+	int				y;
+	t_state			state;
 }				t_game;
 
-
-char 	*read_file(char *pathname);
+char	*read_file(char *pathname);
 void	error_out(char *msg);
 
 void	init_map(t_map *map);

@@ -6,7 +6,7 @@
 /*   By: taejkim <taejkim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 13:11:36 by taejkim           #+#    #+#             */
-/*   Updated: 2021/10/21 13:39:50 by taejkim          ###   ########.fr       */
+/*   Updated: 2021/10/21 16:22:05 by taejkim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 static void	remove_fish(t_game *game, int x, int y)
 {
-	t_obj *node;
-	t_obj *next;
+	t_obj	*node;
+	t_obj	*next;
 
 	node = game->fish;
 	if (x == node->x && y == node->y)
@@ -38,7 +38,7 @@ static void	remove_fish(t_game *game, int x, int y)
 	free(node);
 	if ((++(game->fish_count)) == game->fish_max)
 		mlx_put_image_to_window(game->mlx, game->win, game->img[IMG_EXIT], \
-									TILE_SIZE * game->exit->x, TILE_SIZE * game->exit->y);
+			TILE_SIZE * game->exit->x, TILE_SIZE * game->exit->y);
 }
 
 void	standing(t_game *game)
@@ -94,6 +94,7 @@ void	move_fish(t_game *game)
 	}
 	++(game->state.mvf);
 }
+
 void	move_exit(t_game *game)
 {
 	if (game->state.move_dir == UP)

@@ -6,13 +6,13 @@
 /*   By: taejkim <taejkim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 14:02:45 by taejkim           #+#    #+#             */
-/*   Updated: 2021/10/21 14:03:10 by taejkim          ###   ########.fr       */
+/*   Updated: 2021/10/21 15:59:48 by taejkim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-int		ft_strlen(char *s)
+int	ft_strlen(char *s)
 {
 	size_t	i;
 

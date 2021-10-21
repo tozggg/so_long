@@ -6,7 +6,7 @@
 /*   By: taejkim <taejkim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 13:58:05 by taejkim           #+#    #+#             */
-/*   Updated: 2021/10/21 13:58:44 by taejkim          ###   ########.fr       */
+/*   Updated: 2021/10/21 16:01:17 by taejkim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ static int	check_line(char *str, t_map *map, int *i)
 	{
 		if (!(str[*i] == '0' || str[*i] == '1' || str[*i] == 'P' || \
 				str[*i] == 'E' || str[*i] == 'C'))
-		error_out("invalid map: abnormal object\n");
+			error_out("invalid map: abnormal object\n");
 		if (str[*i] == 'P')
 			++map->start;
 		if (str[*i] == 'E')
