@@ -6,7 +6,7 @@
 /*   By: taejkim <taejkim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 13:51:18 by taejkim           #+#    #+#             */
-/*   Updated: 2021/10/21 16:30:22 by taejkim          ###   ########.fr       */
+/*   Updated: 2021/10/21 17:10:55 by taejkim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,4 @@ void	make_game(t_game *game, char *str)
 	game->mlx = mlx_init();
 	get_xpm_img1(game);
 	get_xpm_img2(game);
-	game->win = mlx_new_window(game->mlx, \
-		TILE_SIZE * game->col, TILE_SIZE * game->row + 16, "so_long");
 }
