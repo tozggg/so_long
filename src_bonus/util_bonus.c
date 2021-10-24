@@ -3,14 +3,33 @@
 /*                                                        :::      ::::::::   */
 /*   util_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: taejkim <taejkim@student.42seoul.kr>       +#+  +:+       +#+        */
+/*   By: taejkim <taejkim@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 13:55:14 by taejkim           #+#    #+#             */
-/*   Updated: 2021/10/21 20:59:10 by taejkim          ###   ########.fr       */
+/*   Updated: 2021/10/24 15:45:22 by taejkim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/so_long_bonus.h"
+
+int	is_ber(char *str)
+{
+	if (str[0] == 'b' && str[1] == 'e' \
+			&& str[2] == 'r' && str[3] == 0)
+		return (1);
+	return (0);
+}
+
+int	is_ber_extension(char *pathname)
+{
+	while (*pathname)
+	{
+		if (*pathname == '.')
+			return (is_ber(++pathname));
+		++pathname;
+	}
+	return (0);
+}
 
 char	*read_file(char *pathname)
 {
@@ -18,7 +37,11 @@ char	*read_file(char *pathname)
 	char	*buf;
 	int		fd;
 
+	if (!is_ber_extension(pathname))
+		error_out("map: invalid extention\n");
 	fd = open(pathname, O_RDONLY);
+	if (fd == -1)
+		error_out("map: file does not exist\n");
 	res = (char *)malloc(sizeof(char));
 	res[0] = 0;
 	buf = (char *)malloc(sizeof(char) * 2);
